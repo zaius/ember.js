@@ -4,14 +4,16 @@ require('ember-model/record_array');
 var get = Ember.get,
     set = Ember.set;
 
-Ember.Model = Ember.Object.extend(Ember.Evented, {
+Ember.Model = Ember.Object.extend(Ember.Evented, Ember.DeferredMixin, {
   isLoaded: false,
   isNew: true,
 
-  load: function(id, data) {
-    set(this, 'data', Ember.merge({id: id}, data));
+  load: function(id, hash) {
+    var data = Ember.merge({id: id}, hash);
+    set(this, 'data', data);
     set(this, 'isLoaded', true);
     this.trigger('didLoad');
+    this.resolve(this);
   },
 
   didDefineProperty: function(proto, key, value) {
@@ -31,7 +33,7 @@ Ember.Model = Ember.Object.extend(Ember.Evented, {
 
   save: function() {
     set(this, 'isSaving', true);
-    this.constructor.adapter.saveRecord(this);
+    return this.constructor.adapter.saveRecord(this);
   },
 
   didSaveRecord: function() {
@@ -44,7 +46,7 @@ Ember.Model = Ember.Object.extend(Ember.Evented, {
   },
 
   deleteRecord: function() {
-    this.constructor.adapter.deleteRecord(this);
+    return this.constructor.adapter.deleteRecord(this);
   },
 
   didDeleteRecord: function() {

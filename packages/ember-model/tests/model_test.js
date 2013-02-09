@@ -47,7 +47,6 @@ test(".find() delegates to the adapter's findAll method", function() {
 
   records.on('didLoad', function() {
     start();
-    debugger;
     // equal(records.get('firstObject.id'), 1); // TODO: built-in CP for primaryKey
     equal(records.get('firstObject.name'), 'Erik');
   });
@@ -122,6 +121,31 @@ test("record.toJSON() is generated from Ember.attr definitions", function() {
   record.on('didLoad', function() {
     start();
     deepEqual(record.toJSON(), {name: 'Erik'});
+  });
+  stop();
+});
+
+
+test("Model.find() returns a deferred", function() {
+  expect(2);
+
+  var records = Model.find();
+  records.then(function(data) {
+    start();
+    equal(records, data);
+    ok(data.get('isLoaded'));
+  });
+  stop();
+});
+
+test("Model.find(id) returns a deferred", function() {
+  expect(2);
+
+  var record = Model.find(1);
+  record.then(function(data) {
+    start();
+    equal(record, data);
+    ok(data.get('isLoaded'));
   });
   stop();
 });

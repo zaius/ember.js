@@ -1,4 +1,5 @@
 require('ember-model/adapter');
+require("ember-runtime/system/deferred");
 
 Ember.FixtureAdapter = Ember.Adapter.extend({
   find: function(record, id) {
@@ -7,7 +8,9 @@ Ember.FixtureAdapter = Ember.Adapter.extend({
 
     if (!record.get('isLoaded')) {
       setTimeout(function() {
-        record.load(id, data);
+        Ember.run(function() {
+          record.load(id, data);
+        });
       });
     }
   },
@@ -16,19 +19,31 @@ Ember.FixtureAdapter = Ember.Adapter.extend({
     var fixtures = klass.FIXTURES;
 
     setTimeout(function() {
-      records.load(klass, fixtures);
+      Ember.run(function() {
+        records.load(klass, fixtures);
+      });
     });
   },
 
   saveRecord: function(record) {
-    setTimeout(function() {
-      Ember.run(record, record.didSaveRecord);
+    var deferred = Ember.Deferred.create();
+    deferred.then(function() {
+      record.didSaveRecord();
     });
+    setTimeout(function() {
+      Ember.run(deferred, deferred.resolve, record);
+    });
+    return deferred;
   },
 
   deleteRecord: function(record) {
-    setTimeout(function() {
-      Ember.run(record, record.didDeleteRecord);
+    var deferred = Ember.Deferred.create();
+    deferred.then(function() {
+      record.didDeleteRecord();
     });
+    setTimeout(function() {
+      Ember.run(deferred, deferred.resolve, record);
+    });
+    return deferred;
   }
 });
