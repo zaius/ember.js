@@ -13,7 +13,7 @@ Ember.RESTAdapter = Ember.Adapter.extend({
   },
 
   findAll: function(klass, records) {
-    var url = get(record.constructor, 'url') + ".json";
+    var url = get(klass, 'url') + ".json";
     Ember.$.getJSON(url, function(data) {
       Ember.run(function() {
         records.load(klass, data);

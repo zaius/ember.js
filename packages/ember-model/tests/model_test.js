@@ -149,3 +149,34 @@ test("Model.find(id) returns a deferred", function() {
   });
   stop();
 });
+
+test("Model#save() returns a deferred", function() {
+  expect(1);
+
+  var record = Model.find(1);
+  record.then(function(data) {
+    start();
+    record.set('name', 'Stefan');
+    record.save().then(function(data) {
+      start();
+      equal(record, data);
+    });
+    stop();
+  });
+  stop();
+});
+
+test("Model#deleteRecord() returns a deferred", function() {
+  expect(1);
+
+  var record = Model.find(1);
+  record.then(function(data) {
+    start();
+    record.deleteRecord().then(function(data) {
+      start();
+      equal(record, data);
+    });
+    stop();
+  });
+  stop();
+});
