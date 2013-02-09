@@ -11,6 +11,10 @@ Ember.Adapter = Ember.Object.extend({
     record.load(id, data);
   },
 
+  createRecord: function(record) {
+    throw new Error('Ember.Adapter subclasses must implement createRecord');
+  },
+
   saveRecord: function(record) {
     throw new Error('Ember.Adapter subclasses must implement saveRecord');
   },

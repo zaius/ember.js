@@ -190,3 +190,47 @@ test("Model#deleteRecord() returns a deferred", function() {
   });
   stop();
 });
+
+test("Model#save() works as expected", function() {
+  expect(2);
+
+  var records = Model.find();
+  var record = Model.find(1);
+
+  records.then(function() {
+    start();
+    ok(!record.get('isNew'));
+
+    record.set('name', 'Stefan');
+    record.save().then(function() {
+      start();
+
+      equal(records.get('length'), 1);
+    });
+    stop();
+  });
+  stop();
+});
+
+test("Model#create() works as expected", function() {
+  expect(9);
+
+  var record = Model.create({name: 'Yehuda'});
+
+  ok(record.get('isNew'));
+  ok(record.get('isLoaded'));
+  ok(!record.get('isSaving'));
+
+  record.save().then(function() {
+    start();
+    ok(!record.get('isNew'));
+    ok(record.get('isLoaded'));
+    ok(!record.get('isSaving'));
+  });
+
+  ok(record.get('isNew'));
+  ok(record.get('isLoaded'));
+  ok(record.get('isSaving'));
+
+  stop();
+});

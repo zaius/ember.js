@@ -5,7 +5,7 @@ var get = Ember.get,
     set = Ember.set;
 
 Ember.Model = Ember.Object.extend(Ember.Evented, Ember.DeferredMixin, {
-  isLoaded: false,
+  isLoaded: true,
   isLoading: Ember.computed.not('isLoaded'),
   isNew: true,
   isDeleted: false,
@@ -14,6 +14,7 @@ Ember.Model = Ember.Object.extend(Ember.Evented, Ember.DeferredMixin, {
     var data = Ember.merge({id: id}, hash);
     set(this, 'data', data);
     set(this, 'isLoaded', true);
+    set(this, 'isNew', false);
     this.trigger('didLoad');
     this.resolve(this);
   },
@@ -34,16 +35,20 @@ Ember.Model = Ember.Object.extend(Ember.Evented, Ember.DeferredMixin, {
   },
 
   save: function() {
+    var adapter = this.constructor.adapter;
     set(this, 'isSaving', true);
-    return this.constructor.adapter.saveRecord(this);
+    return get(this, 'isNew') ? adapter.createRecord(this) : adapter.saveRecord(this);
+  },
+
+  didCreateRecord: function() {
+    set(this, 'isNew', false);
+    this.constructor.addToRecordArrays(this);
+    this.trigger('didCreateRecord');
+    this.didSaveRecord();
   },
 
   didSaveRecord: function() {
-    if (get(this, 'isNew')) {
-      set(this, 'isNew', false);
-    }
     set(this, 'isSaving', false);
-    this.constructor.addToRecordArrays(this);
     this.trigger('didSaveRecord');
   },
 
@@ -88,7 +93,7 @@ Ember.Model.reopenClass({
 
   cachedRecordForId: function(id) {
     if (!this.recordCache) { this.recordCache = {}; }
-    var record = this.recordCache[id] || this.create();
+    var record = this.recordCache[id] || this.create({isLoaded: false});
     if (!this.recordCache[id]) { this.recordCache[id] = record; }
     return record;
   },

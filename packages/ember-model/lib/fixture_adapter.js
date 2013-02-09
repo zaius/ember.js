@@ -25,6 +25,17 @@ Ember.FixtureAdapter = Ember.Adapter.extend({
     });
   },
 
+  createRecord: function(record) {
+    var deferred = Ember.Deferred.create();
+    deferred.then(function() {
+      record.didCreateRecord();
+    });
+    setTimeout(function() {
+      Ember.run(deferred, deferred.resolve, record);
+    });
+    return deferred;
+  },
+
   saveRecord: function(record) {
     var deferred = Ember.Deferred.create();
     deferred.then(function() {
