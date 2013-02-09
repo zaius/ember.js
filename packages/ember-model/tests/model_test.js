@@ -25,30 +25,37 @@ test("can define attributes with Ember.attr, data is accessible", function() {
 // });
 
 test(".find(id) delegates to the adapter's find method", function() {
-  expect(3);
+  expect(6);
 
   var record = Model.find(1);
   ok(record, "Record was returned by find");
+  ok(!record.get('isLoaded'));
+  ok(record.get('isLoading'));
   stop();
 
   record.on('didLoad', function() {
     start();
     equal(record.get('name'), 'Erik', "Loaded value is accessible from the record");
-    ok(record.get('isLoaded'), "Record isLoaded");
+    ok(record.get('isLoaded'));
+    ok(!record.get('isLoading'));
   });
 });
 
 test(".find() delegates to the adapter's findAll method", function() {
-  expect(2);
+  expect(6);
 
   var records = Model.find();
   ok(records instanceof Ember.RecordArray, "RecordArray is returned");
+  ok(!records.get('isLoaded'));
+  ok(records.get('isLoading'));
   stop();
 
   records.on('didLoad', function() {
     start();
     // equal(records.get('firstObject.id'), 1); // TODO: built-in CP for primaryKey
     equal(records.get('firstObject.name'), 'Erik');
+    ok(records.get('isLoaded'));
+    ok(!records.get('isLoading'));
   });
 });
 
@@ -151,7 +158,7 @@ test("Model.find(id) returns a deferred", function() {
 });
 
 test("Model#save() returns a deferred", function() {
-  expect(1);
+  expect(2);
 
   var record = Model.find(1);
   record.then(function(data) {
@@ -160,6 +167,7 @@ test("Model#save() returns a deferred", function() {
     record.save().then(function(data) {
       start();
       equal(record, data);
+      ok(!record.get('isSaving'));
     });
     stop();
   });
@@ -167,7 +175,7 @@ test("Model#save() returns a deferred", function() {
 });
 
 test("Model#deleteRecord() returns a deferred", function() {
-  expect(1);
+  expect(2);
 
   var record = Model.find(1);
   record.then(function(data) {
@@ -175,6 +183,7 @@ test("Model#deleteRecord() returns a deferred", function() {
     record.deleteRecord().then(function(data) {
       start();
       equal(record, data);
+      ok(record.get('isDeleted'));
     });
     stop();
   });

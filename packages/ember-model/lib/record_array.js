@@ -1,5 +1,6 @@
 Ember.RecordArray = Ember.ArrayProxy.extend(Ember.Evented, Ember.DeferredMixin, {
   isLoaded: false,
+  isLoading: Ember.computed.not('isLoaded'),
 
   load: function(klass, data) {
     this.set('content', this.materializeData(klass, data));

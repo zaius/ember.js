@@ -6,7 +6,9 @@ var get = Ember.get,
 
 Ember.Model = Ember.Object.extend(Ember.Evented, Ember.DeferredMixin, {
   isLoaded: false,
+  isLoading: Ember.computed.not('isLoaded'),
   isNew: true,
+  isDeleted: false,
 
   load: function(id, hash) {
     var data = Ember.merge({id: id}, hash);
@@ -51,6 +53,7 @@ Ember.Model = Ember.Object.extend(Ember.Evented, Ember.DeferredMixin, {
 
   didDeleteRecord: function() {
     this.constructor.removeFromRecordArrays(this);
+    set(this, 'isDeleted', true);
     this.trigger('didDeleteRecord');
   }
 });
