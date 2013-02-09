@@ -42,7 +42,7 @@ test(".find(id) delegates to the adapter's find method", function() {
 });
 
 test(".find() delegates to the adapter's findAll method", function() {
-  expect(6);
+  expect(7);
 
   var records = Model.find();
   ok(records instanceof Ember.RecordArray, "RecordArray is returned");
@@ -54,6 +54,7 @@ test(".find() delegates to the adapter's findAll method", function() {
     start();
     // equal(records.get('firstObject.id'), 1); // TODO: built-in CP for primaryKey
     equal(records.get('firstObject.name'), 'Erik');
+    ok(records.get('firstObject.isLoaded'));
     ok(records.get('isLoaded'));
     ok(!records.get('isLoading'));
   });

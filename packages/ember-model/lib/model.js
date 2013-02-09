@@ -112,7 +112,8 @@ Ember.Model.reopenClass({
   // FIXME
   findFromCacheOrLoad: function(data) {
     var record = this.cachedRecordForId(data.id);
-    set(record, 'data', data);
+    // set(record, 'data', data);
+    record.load(data.id, data);
     return record;
   }
 });
