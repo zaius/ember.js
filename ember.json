@@ -27,7 +27,8 @@
         "ember-views",
         "ember-states",
         "ember-routing",
-        "ember-handlebars"
+        "ember-handlebars",
+        "ember-model"
       ]
     }
   }

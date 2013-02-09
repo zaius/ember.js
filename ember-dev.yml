@@ -30,6 +30,7 @@ testing_packages:
   - ember-handlebars
   - ember-routing
   - ember-application
+  - ember-model
   - ember
 testing_additional_requires:
   - ember-debug
