@@ -242,6 +242,33 @@ test("should send an action if one is defined when the return key is pressed", f
   textField.trigger('keyUp', event);
 });
 
+test("the action should be sent to the object in the target property", function() {
+  expect(3);
+
+  var StubController = Ember.Object.extend({
+    send: function(actionName, value, sender) {
+      equal(actionName, 'didTriggerAction', "text field sent correct action name");
+      equal(value, "textFieldValue", "text field sent its current value as first argument");
+      equal(sender, textField, "text field sent itself as second argument");
+    }
+  });
+
+  var target = StubController.create();
+  textField.set('action', 'didTriggerAction');
+  textField.set('value', "textFieldValue");
+  textField.set('controller', Ember.Object.create());
+  textField.set('target', target);
+
+  Ember.run(function() { textField.append(); });
+
+  var event = {
+    keyCode: 13,
+    stopPropagation: Ember.K
+  };
+
+  textField.trigger('keyUp', event);
+});
+
 test("bubbling of handled actions can be enabled via bubbles property", function() {
   textField.set('bubbles', true);
   textField.set('action', 'didTriggerAction');

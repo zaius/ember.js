@@ -1,6 +1,7 @@
 require("ember-handlebars/ext");
 require("ember-views/views/view");
 require("ember-handlebars/controls/text_support");
+require('ember-runtime/mixins/target_action_support');
 
 /**
 @module ember
@@ -48,7 +49,7 @@ var get = Ember.get, set = Ember.set;
   @extends Ember.View
   @uses Ember.TextSupport
 */
-Ember.TextField = Ember.View.extend(Ember.TextSupport,
+Ember.TextField = Ember.View.extend(Ember.TargetActionSupport, Ember.TextSupport,
   /** @scope Ember.TextField.prototype */ {
 
   classNames: ['ember-text-field'],
@@ -106,6 +107,15 @@ Ember.TextField = Ember.View.extend(Ember.TextSupport,
   action: null,
 
   /**
+    The target object to send the action to.
+
+    @property target
+    @type String
+    @default null
+  */
+  target: 'controller',
+
+  /**
     Whether they `keyUp` event that triggers an `action` to be sent continues
     propagating to other views.
 
@@ -122,13 +132,41 @@ Ember.TextField = Ember.View.extend(Ember.TextSupport,
   */
   bubbles: false,
 
+
+  /**
+    @private
+
+    Overrides `TargetActionSupport`'s `triggerAction` function to pass the
+    value as first argument, and the view as the second.
+
+    @property triggerAction
+  */
+  triggerAction: function() {
+    var action = get(this, 'action'),
+    target = get(this, 'targetObject');
+
+    if (target && action) {
+      var ret;
+
+      if (typeof target.send === 'function') {
+        ret = target.send(action, get(this, 'value'), this);
+      } else {
+        if (typeof action === 'string') {
+          action = target[action];
+        }
+        ret = action.call(target, get(this, 'value'), this);
+      }
+      if (ret !== false) ret = true;
+
+      return ret;
+    } else {
+      return false;
+    }
+  },
+
+
   insertNewline: function(event) {
-    var controller = get(this, 'controller'),
-        action = get(this, 'action');
-
-    if (action) {
-      controller.send(action, get(this, 'value'), this);
-
+    if (this.triggerAction()) {
       if (!get(this, 'bubbles')) {
         event.stopPropagation();
       }
